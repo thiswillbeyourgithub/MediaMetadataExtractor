@@ -26,10 +26,7 @@ from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from moviepy.video.io.VideoFileClip import VideoFileClip
-from mutagen import File
-from mutagen.mp4 import MP4
-from mutagen.mp3 import MP3
-from mutagen.flac import FLAC
+from pymediainfo import MediaInfo
 
 MEDIA_EXTENSIONS = {'.mp3', '.mp4', '.avi', '.mkv', '.mov', '.wav', '.flac', '.m4a', '.aac'}
 
@@ -74,34 +71,43 @@ def get_media_metadata(file_path: Path) -> Dict[str, str]:
     except Exception as e:
         metadata['error'] = str(e)
     
-    # Extract additional metadata using mutagen
+    # Extract metadata using pymediainfo
     try:
-        audio = File(str(file_path))
-        if audio:
-            metadata.update({
-                'title': audio.get('title', ['N/A'])[0],
-                'artist': audio.get('artist', ['N/A'])[0],
-                'album': audio.get('album', ['N/A'])[0],
-                'genre': audio.get('genre', ['N/A'])[0],
-                'track_number': audio.get('tracknumber', ['N/A'])[0],
-                'year': audio.get('date', ['N/A'])[0],
-                'bitrate': getattr(audio.info, 'bitrate', 'N/A'),
-                'sample_rate': getattr(audio.info, 'sample_rate', 'N/A'),
-                'channels': getattr(audio.info, 'channels', 'N/A'),
-            })
-            
-            # Handle MP4 specific tags
-            if file_path.suffix.lower() in {'.mp4', '.m4a'}:
-                mp4_tags = audio.tags
-                if mp4_tags:
-                    metadata.update({
-                        'composer': mp4_tags.get('\xa9wrt', ['N/A'])[0],
-                        'album_artist': mp4_tags.get('aART', ['N/A'])[0],
-                        'grouping': mp4_tags.get('\xa9grp', ['N/A'])[0],
-                        'lyrics': mp4_tags.get('\xa9lyr', ['N/A'])[0],
-                    })
+        media_info = MediaInfo.parse(file_path)
+        for track in media_info.tracks:
+            if track.track_type == 'General':
+                metadata.update({
+                    'title': track.title or 'N/A',
+                    'artist': track.performer or 'N/A',
+                    'album': track.album or 'N/A',
+                    'genre': track.genre or 'N/A',
+                    'track_number': track.track_name_position or 'N/A',
+                    'year': track.recorded_date or track.released_date or 'N/A',
+                    'composer': track.composer or 'N/A',
+                    'album_artist': track.album_performer or 'N/A',
+                    'lyrics': track.lyrics or 'N/A',
+                    'comment': track.comment or 'N/A',
+                })
+            elif track.track_type == 'Video':
+                metadata.update({
+                    'codec': track.codec or 'N/A',
+                    'bitrate': track.bit_rate or 'N/A',
+                    'duration': track.duration or 'N/A',
+                    'frame_rate': track.frame_rate or 'N/A',
+                    'resolution': f"{track.width}x{track.height}" if track.width and track.height else 'N/A',
+                    'aspect_ratio': track.display_aspect_ratio or 'N/A',
+                    'color_space': track.color_space or 'N/A',
+                })
+            elif track.track_type == 'Audio':
+                metadata.update({
+                    'audio_codec': track.codec or 'N/A',
+                    'audio_bitrate': track.bit_rate or 'N/A',
+                    'sample_rate': track.sampling_rate or 'N/A',
+                    'channels': track.channel_s or 'N/A',
+                    'bit_depth': track.bit_depth or 'N/A',
+                })
     except Exception as e:
-        metadata['audio_metadata_error'] = str(e)
+        metadata['media_info_error'] = str(e)
     
     return metadata
 
