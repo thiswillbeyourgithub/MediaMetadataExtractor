@@ -31,7 +31,7 @@ import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 import warnings
 from datetime import datetime
 import threading
