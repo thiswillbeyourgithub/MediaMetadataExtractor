@@ -283,7 +283,9 @@ class MediaMetadataExtractor:
                        font=('Helvetica', 12, 'bold'),
                        padding=10,
                        foreground='white',
-                       background='#0078d7')
+                       background='#800080')
+        style.map('Accent.TButton',
+                 background=[('active', '#800080'), ('!active', '#800080')])
 
     def _get_last_path_file(self) -> Path:
         """Get the path to the last path file in system temp directory."""
