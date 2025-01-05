@@ -86,13 +86,14 @@ If you find this project useful, please consider starring the repository ⭐
 
 For issues or feature requests, please open an issue on GitHub.
 
-## Screenshots
+## Example Output
 
-![Main Window](screenshots/main_window.png)
-*Main application window*
-
-![Processing](screenshots/processing.png)
-*Metadata extraction in progress*
-
-![Results](screenshots/results.png)
-*Example Excel output*
+The application generates a detailed Excel spreadsheet with metadata for each media file, including:
+- File name and path
+- File size in bytes and MB
+- Modification date
+- Duration in seconds and HH:MM:SS format
+- Resolution (for video files)
+- FPS (for video files)
+- Codec information
+- Additional technical details
