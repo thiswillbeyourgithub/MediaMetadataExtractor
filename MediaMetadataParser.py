@@ -42,8 +42,10 @@ def get_media_metadata(file_path: Path) -> Dict[str, str]:
     metadata = {
         'filename': file_path.name,
         'path': str(file_path),
-        'size': f"{file_path.stat().st_size / (1024 * 1024):.2f} MB",
-        'modified': datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S')
+        'size_B': file_path.stat().st_size,
+        'size_MB': f"{file_path.stat().st_size / (1024 * 1024):.2f}",
+        'modified_unix': file_path.stat().st_mtime,
+        'modified_date': datetime.fromtimestamp(file_path.stat().st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
     }
     
     try:
@@ -51,11 +53,20 @@ def get_media_metadata(file_path: Path) -> Dict[str, str]:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             with VideoFileClip(str(file_path)) as clip:
+                hours = clip.duration//60//60
+                minutes = clip.duration//60 - hours * 60
+                seconds = clip.duration - hours * 60 * 60 - minutes * 60
                 metadata.update({
-                    'duration': f"{clip.duration:.2f} seconds",
+                    'duration_seconds': f"{clip.duration:.2f}",
+                    'duration': f"{hours}H{minutes}::{seconds:.2f}",
                     'resolution': f"{clip.size[0]}x{clip.size[1]}",
                     'fps': f"{clip.fps:.2f}" if hasattr(clip, 'fps') else 'N/A',
                     'codec': clip.reader.codec if hasattr(clip.reader, 'codec') else 'N/A'
+                    'pixel_format': clip.reader.pixel_format if hasattr(clip.reader, 'pixel_format') else 'N/A'
+                    'depth': clip.reader.depth if hasattr(clip.reader, 'depth') else 'N/A'
+                    'rotation': clip.reader.rotation if hasattr(clip.reader, 'rotation') else 'N/A'
+                    'bitrate': clip.reader.bitrate if hasattr(clip.reader, 'bitrate') else 'N/A'
+                    'extra_infos': clip.reader.infos if hasattr(clip.reader, 'infos') else 'N/A'
                 })
     except Exception as e:
         metadata['error'] = str(e)
