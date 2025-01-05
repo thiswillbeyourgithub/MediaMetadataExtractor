@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Media Metadata Extractor
+"""MediaMetadataParser
 
 This application extracts metadata from media files including:
 - Duration
@@ -194,7 +194,7 @@ def process_directory(directory: Path, output_file: Path) -> None:
     save_to_excel(metadata_list, output_file)
     print("Processing complete!")
 
-class MediaMetadataExtractor:
+class MediaMetadataParser:
     def __init__(self, root):
         self.root = root
         self.root.title("Media Metadata Extractor")
@@ -340,7 +340,7 @@ class MediaMetadataExtractor:
         """Get the path to the last path file in system temp directory."""
         import tempfile
         temp_dir = Path(tempfile.gettempdir())
-        return temp_dir / "MediaMetadataExtractor_latest_path.txt"
+        return temp_dir / "MediaMetadataParser_latest_path.txt"
 
     def _is_valid_path(self, path: str) -> bool:
         """Check if a path is valid and accessible."""
@@ -507,7 +507,7 @@ class MediaMetadataExtractor:
 if __name__ == '__main__':
     try:
         root = tk.Tk()
-        app = MediaMetadataExtractor(root)
+        app = MediaMetadataParser(root)
         root.mainloop()
     except KeyboardInterrupt:
         print("\nKeyboard interrupt received. Exiting gracefully...")
