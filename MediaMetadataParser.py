@@ -60,6 +60,7 @@ def get_media_metadata(file_path: Path) -> Dict[str, str]:
                     'duration_seconds': f"{clip.duration:.2f}",
                     'duration': f"{hours}H{minutes}::{seconds:.2f}",
                     'resolution': f"{clip.size[0]}x{clip.size[1]}",
+                    'color_space': clip.color_space,
                     'fps': f"{clip.fps:.2f}" if hasattr(clip, 'fps') else 'N/A',
                     'codec': clip.reader.codec if hasattr(clip.reader, 'codec') else 'N/A',
                     'pixel_format': clip.reader.pixel_format if hasattr(clip.reader, 'pixel_format') else 'N/A',
