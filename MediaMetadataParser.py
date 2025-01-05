@@ -498,6 +498,11 @@ class MediaMetadataExtractor:
             self.doc_text.pack(fill="x", padx=5, pady=5)
             self.doc_label.config(text="▼ Documentation (click to collapse)")
             self.docs_visible = True
+            
+    def open_github(self):
+        """Open the GitHub repository in the default web browser."""
+        import webbrowser
+        webbrowser.open("https://github.com/thiswillbeyourgithub/MediaMetadataParser")
 
 if __name__ == '__main__':
     try:
