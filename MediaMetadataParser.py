@@ -21,10 +21,24 @@ Key Features:
   - Detailed metadata for each file
   - Results saved to Excel file
   - Remembers last used directory
+  - Progress tracking and cancellation
+  - Optional JSON output
 
 Dependencies:
 - moviepy: For basic media metadata
 - openpyxl: For Excel file creation
+- tkinter: For GUI interface
+
+Usage:
+    Run the script to launch the GUI application. Select a folder containing media files
+    and choose an output location. Click 'Start Processing' to begin metadata extraction.
+
+Example:
+    $ python MediaMetadataParser.py
+
+Note:
+    The application may take some time to process large media files or directories
+    with many files. Processing can be cancelled at any time.
 """
 
 import os
