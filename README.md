@@ -17,12 +17,18 @@ MediaMetadataParser is a powerful tool for extracting and organizing metadata fr
 ## Features
 
 - Extracts comprehensive metadata including:
-  - Duration
+  - Duration (in seconds and HH:MM:SS format)
   - Resolution (width x height)
   - FPS (frames per second)
   - Codec information
-  - File size
-  - Creation date (if available in EXIF)
+  - Pixel format
+  - Bit depth
+  - Rotation
+  - Bitrate
+  - Color space
+  - File size (in bytes and MB)
+  - Modification date
+  - Additional technical metadata from file headers
 - Supports multiple media formats:
   - Video: .mp4, .avi, .mkv, .mov
   - Audio: .mp3, .wav, .flac, .m4a, .aac
@@ -32,10 +38,17 @@ MediaMetadataParser is a powerful tool for extracting and organizing metadata fr
   - Total number of media files
   - Total size in GB
   - Detailed metadata for each file
-  - Results saved to Excel file
-  - Optional JSON output
-  - Remembers last used directory
-  - Progress tracking and cancellation
+  - Results saved to Excel file with auto-adjusted column widths
+  - Optional JSON output with proper type conversion
+  - Remembers last used directory via temporary file
+  - Progress tracking with percentage complete
+  - Cancellation support
+  - Error handling for problematic files
+  - GUI with:
+    - Expandable documentation
+    - GitHub link
+    - Style enhancements
+    - Input validation
 
 ## Installation
 
@@ -71,9 +84,10 @@ The application will:
 
 - Python 3.8+
 - Required packages:
-  - moviepy
-  - openpyxl
-  - tkinter
+  - moviepy (for media metadata extraction)
+  - openpyxl (for Excel file creation)
+  - tkinter (for GUI interface)
+  - json (for optional JSON output)
 
 ## Contributing
 
