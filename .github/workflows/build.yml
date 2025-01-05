@@ -1,0 +1,62 @@
+name: Build Python Script with PyInstaller
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-14, macos-13]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.7'
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          if [[ "${{ matrix.os }}" == "macos-14" ]]; then
+            # On macOS M1
+            export ARCHFLAGS="-arch x86_64 -arch arm64"
+          elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
+            # On macOS with intel cpus
+            export ARCHFLAGS="-arch x86_64"
+          fi
+          # install a working numpy to avoid issues with numpy 2.0
+          pip install numpy==1.25.0
+          pip install pyperclip
+          pip install pyinstaller
+          pip install moviepy
+
+      - name: Compile script with PyInstaller
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "macos-14" ]]; then
+            # Build Apple Silicon binary
+            pyinstaller --onefile --name MediaMetadataParser-arm64 MediaMetadataParser.py --argv-emulation --optimize 2 --target-architecture arm64 --clean
+          elif [[ "${{ matrix.os }}" == "macos-13" ]]; then
+            # Build Intel binary
+            pyinstaller --onefile --name MediaMetadataParser-intel MediaMetadataParser.py --argv-emulation --optimize 2 --target-architecture x86_64 --clean
+          else
+            # On other platforms, use default architecture
+            pyinstaller --onefile --name MediaMetadataParser MediaMetadataParser.py --argv-emulation --optimize 2 --clean
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MediaMetadataParser-${{ matrix.os }}  # Unique name per OS
+          path: dist/
