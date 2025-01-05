@@ -28,6 +28,7 @@ Dependencies:
 """
 
 import os
+import json
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from pathlib import Path
@@ -234,16 +235,28 @@ class MediaMetadataExtractor:
         self.output_frame = ttk.LabelFrame(self.main_container, text="Output Options")
         self.output_frame.grid(row=2, column=0, sticky="ew", padx=5, pady=2)
         
+        # Excel output
         self.output_path = tk.StringVar(value=str(Path.home() / "media_metadata.xlsx"))
         self.output_entry = ttk.Entry(self.output_frame, textvariable=self.output_path)
-        self.output_entry.pack(side="left", fill="x", expand=True, padx=(0,5))
+        self.output_entry.pack(side="top", fill="x", expand=True, padx=(0,5))
         
         self.output_browse_button = ttk.Button(
             self.output_frame, 
-            text="Browse", 
+            text="Browse Excel", 
             command=self.select_output_file
         )
-        self.output_browse_button.pack(side="right")
+        self.output_browse_button.pack(side="top", pady=(0,5))
+        
+        # JSON output checkbox
+        self.save_json = tk.BooleanVar(value=False)
+        self.json_check = ttk.Checkbutton(
+            self.output_frame,
+            text="Also save as JSON",
+            variable=self.save_json,
+            onvalue=True,
+            offvalue=False
+        )
+        self.json_check.pack(side="top", anchor="w")
         
         # Progress
         self.progress_frame = ttk.LabelFrame(self.main_container, text="Progress")
@@ -423,6 +436,13 @@ class MediaMetadataExtractor:
             output_path = Path(self.output_path.get())
             save_to_excel(metadata_list, output_path)
             self.log_message(f"\nResults saved to {output_path}")
+            
+            # Save JSON if checkbox is checked
+            if self.save_json.get():
+                json_path = output_path.with_suffix('.json')
+                with open(json_path, 'w') as f:
+                    json.dump(metadata_list, f, indent=2)
+                self.log_message(f"JSON results saved to {json_path}")
             messagebox.showinfo("Complete", "Metadata extraction finished!")
             
         except Exception as e:
