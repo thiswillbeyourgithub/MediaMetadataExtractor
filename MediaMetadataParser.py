@@ -66,10 +66,10 @@ def get_media_metadata(file_path: Path) -> Dict[str, str]:
                     'fps': f"{clip.fps:.2f}" if hasattr(clip, 'fps') else 'N/A',
                     'codec': clip.reader.codec if hasattr(clip.reader, 'codec') else 'N/A',
                     'pixel_format': clip.reader.pixel_format if hasattr(clip.reader, 'pixel_format') else 'N/A',
-                    'depth': clip.reader.depth if hasattr(clip.reader, 'depth') else 'N/A'
-                    'rotation': clip.reader.rotation if hasattr(clip.reader, 'rotation') else 'N/A'
-                    'bitrate': clip.reader.bitrate if hasattr(clip.reader, 'bitrate') else 'N/A'
-                    'extra_infos': clip.reader.infos if hasattr(clip.reader, 'infos') else 'N/A'
+                    'depth': clip.reader.depth if hasattr(clip.reader, 'depth') else 'N/A',
+                    'rotation': clip.reader.rotation if hasattr(clip.reader, 'rotation') else 'N/A',
+                    'bitrate': clip.reader.bitrate if hasattr(clip.reader, 'bitrate') else 'N/A',
+                    'extra_infos': clip.reader.infos if hasattr(clip.reader, 'infos') else 'N/A',
                 })
     except Exception as e:
         metadata['error'] = str(e)
