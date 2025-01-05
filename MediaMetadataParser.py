@@ -321,6 +321,20 @@ class MediaMetadataExtractor:
                        background='#800080')
         style.map('Accent.TButton',
                  background=[('active', '#800080'), ('!active', '#800080')])
+        
+        # Add GitHub link
+        self.footer_frame = ttk.Frame(self.main_container)
+        self.footer_frame.grid(row=5, column=0, sticky="ew", padx=5, pady=2)
+        
+        self.github_link = ttk.Label(
+            self.footer_frame,
+            text="View source code, documentation, or request features on GitHub",
+            foreground="blue",
+            cursor="hand2",
+            font=('Helvetica', 9)
+        )
+        self.github_link.pack(side="right")
+        self.github_link.bind("<Button-1>", lambda e: self.open_github())
 
     def _get_last_path_file(self) -> Path:
         """Get the path to the last path file in system temp directory."""
