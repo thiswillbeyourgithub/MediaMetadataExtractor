@@ -421,17 +421,19 @@ class MediaMetadataExtractor:
             self.log_message(f"Found {len(media_files)} media files ({total_size_gb:.2f} GB)")
             
             metadata_list = []
+            total_files = len(media_files)
             for i, file in enumerate(media_files):
                 if self.cancel_requested:
                     self.log_message("\nProcessing cancelled by user")
                     break
                     
-                self.log_message(f"Processing: {file.name}")
+                percentage = (i + 1) / total_files * 100
+                self.log_message(f"Processing: {file.name} ({percentage:.1f}%)")
                 metadata = get_media_metadata(file, path)
                 metadata_list.append(metadata)
                 
                 if (i+1) % 10 == 0:  # Update progress every 10 files
-                    self.log_message(f"Processed {i+1}/{len(media_files)} files")
+                    self.log_message(f"Processed {i+1}/{total_files} files ({percentage:.1f}%)")
             
             output_path = Path(self.output_path.get())
             save_to_excel(metadata_list, output_path)
