@@ -3,6 +3,15 @@
 ![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/license-GPLv3-green.svg)
 
+## Motivation
+
+This project was created to help my significant other who works in video production and needed a quicker way to access metadata from large collections of dailies, rush footage, and other video files. The existing tools were either too slow, didn't provide the right information, or required manual processing of each file. MediaMetadataParser was designed to:
+
+- Quickly scan entire directories of media files
+- Extract all relevant technical metadata in one go
+- Provide an organized, searchable output
+- Handle the specific needs of video production workflows
+
 MediaMetadataParser is a powerful tool for extracting and organizing metadata from media files. It supports various media formats and provides detailed information in both Excel and JSON formats.
 
 ## Features
