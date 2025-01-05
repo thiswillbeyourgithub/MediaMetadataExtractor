@@ -41,18 +41,19 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 MEDIA_EXTENSIONS = {'.mp3', '.mp4', '.avi', '.mkv', '.mov', '.wav', '.flac', '.m4a', '.aac'}
 
-def get_media_metadata(file_path: Path) -> Dict[str, str]:
+def get_media_metadata(file_path: Path, base_path: Path) -> Dict[str, str]:
     """Extract metadata from a media file.
     
     Args:
         file_path: Path to the media file
+        base_path: Base path to calculate relative path from
         
     Returns:
         Dictionary containing extracted metadata
     """
     metadata = {
         'filename': file_path.name,
-        'path': str(file_path),
+        'path': str(file_path.relative_to(base_path)),
         'size_B': file_path.stat().st_size,
         'size_MB': f"{file_path.stat().st_size / (1024 * 1024):.2f}",
         'modified_unix': file_path.stat().st_mtime,
@@ -406,7 +407,7 @@ class MediaMetadataExtractor:
                     break
                     
                 self.log_message(f"Processing: {file.name}")
-                metadata = get_media_metadata(file)
+                metadata = get_media_metadata(file, path)
                 metadata_list.append(metadata)
                 
                 if (i+1) % 10 == 0:  # Update progress every 10 files
