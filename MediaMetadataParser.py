@@ -65,22 +65,29 @@ def get_media_metadata(file_path: Path, base_path: Path) -> Dict[str, str]:
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             with VideoFileClip(str(file_path)) as clip:
-                hours = clip.duration//60//60
-                minutes = clip.duration//60 - hours * 60
-                seconds = clip.duration - hours * 60 * 60 - minutes * 60
+                # Basic metadata that should exist for all files
+                hours = int(clip.duration // 3600)
+                minutes = int((clip.duration % 3600) // 60)
+                seconds = clip.duration % 60
                 metadata.update({
                     'duration_seconds': f"{clip.duration:.2f}",
-                    'duration': f"{hours}H{minutes}::{seconds:.2f}",
-                    'resolution': f"{clip.size[0]}x{clip.size[1]}",
-                    'color_space': clip.color_space,
+                    'duration': f"{hours:02d}:{minutes:02d}:{seconds:06.3f}",
+                    'resolution': f"{clip.size[0]}x{clip.size[1]}" if hasattr(clip, 'size') else 'N/A',
+                    'color_space': clip.color_space if hasattr(clip, 'color_space') else 'N/A',
                     'fps': f"{clip.fps:.2f}" if hasattr(clip, 'fps') else 'N/A',
-                    'codec': clip.reader.codec if hasattr(clip.reader, 'codec') else 'N/A',
-                    'pixel_format': clip.reader.pixel_format if hasattr(clip.reader, 'pixel_format') else 'N/A',
-                    'depth': clip.reader.depth if hasattr(clip.reader, 'depth') else 'N/A',
-                    'rotation': clip.reader.rotation if hasattr(clip.reader, 'rotation') else 'N/A',
-                    'bitrate': clip.reader.bitrate if hasattr(clip.reader, 'bitrate') else 'N/A',
-                    'extra_infos': clip.reader.infos if hasattr(clip.reader, 'infos') else 'N/A',
                 })
+                
+                # Video-specific metadata
+                if hasattr(clip, 'reader') and clip.reader:
+                    reader = clip.reader
+                    metadata.update({
+                        'codec': getattr(reader, 'codec', 'N/A'),
+                        'pixel_format': getattr(reader, 'pixel_format', 'N/A'),
+                        'depth': getattr(reader, 'depth', 'N/A'),
+                        'rotation': getattr(reader, 'rotation', 'N/A'),
+                        'bitrate': getattr(reader, 'bitrate', 'N/A'),
+                        'extra_infos': str(getattr(reader, 'infos', {})) if hasattr(reader, 'infos') else 'N/A',
+                    })
     except Exception as e:
         metadata['error'] = str(e)
     
