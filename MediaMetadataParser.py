@@ -474,6 +474,13 @@ class MediaMetadataParser:
             # Save JSON if checkbox is checked
             if self.save_json.get():
                 json_path = output_path.with_suffix('.json')
+                # Convert extra_infos from string to dict if present
+                for item in metadata_list:
+                    if 'extra_infos' in item and item['extra_infos'] != 'N/A':
+                        try:
+                            item['extra_infos'] = json.loads(item['extra_infos'])
+                        except json.JSONDecodeError:
+                            item['extra_infos'] = 'N/A'
                 with open(json_path, 'w') as f:
                     json.dump(metadata_list, f, indent=2)
                 self.log_message(f"JSON results saved to {json_path}")
