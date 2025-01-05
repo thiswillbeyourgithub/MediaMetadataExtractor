@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""MediaMetadataParser
+"""MediaMetadataParser - Media Metadata Extraction Tool
+
+Repository: https://github.com/thiswillbeyourgithub/MediaMetadataParser
+Author: thiswillbeyourgithub
+License: GPLv3
 
 This application extracts metadata from media files including:
 - Duration
