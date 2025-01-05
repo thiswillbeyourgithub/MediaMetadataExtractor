@@ -86,11 +86,10 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
     
     # Create header row
     headers = [
-        'Filename', 'Path', 'Size', 'Modified Date', 
-        'Duration', 'Resolution', 'FPS', 'Codec',
-        'Title', 'Artist', 'Album', 'Genre', 'Track Number',
-        'Year', 'Bitrate', 'Sample Rate', 'Channels',
-        'Composer', 'Album Artist', 'Grouping', 'Lyrics'
+        'Filename', 'Path', 'Size (B)', 'Size (MB)', 'Modified Date', 
+        'Duration (seconds)', 'Duration', 'Resolution', 'FPS', 
+        'Codec', 'Pixel Format', 'Bit Depth', 'Rotation', 
+        'Bitrate', 'Color Space', 'Extra Infos'
     ]
     for col_num, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col_num, value=header)
@@ -100,27 +99,20 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
     for row_num, item in enumerate(data, 2):
         ws.cell(row=row_num, column=1, value=item['filename'])
         ws.cell(row=row_num, column=2, value=item['path'])
-        ws.cell(row=row_num, column=3, value=item['size'])
-        ws.cell(row=row_num, column=4, value=item['modified'])
-        ws.cell(row=row_num, column=5, value=item.get('duration', 'N/A'))
-        ws.cell(row=row_num, column=6, value=item.get('resolution', 'N/A'))
-        ws.cell(row=row_num, column=7, value=item.get('fps', 'N/A'))
-        ws.cell(row=row_num, column=8, value=item.get('codec', 'N/A'))
-        
-        # Audio metadata
-        ws.cell(row=row_num, column=9, value=item.get('title', 'N/A'))
-        ws.cell(row=row_num, column=10, value=item.get('artist', 'N/A'))
-        ws.cell(row=row_num, column=11, value=item.get('album', 'N/A'))
-        ws.cell(row=row_num, column=12, value=item.get('genre', 'N/A'))
-        ws.cell(row=row_num, column=13, value=item.get('track_number', 'N/A'))
-        ws.cell(row=row_num, column=14, value=item.get('year', 'N/A'))
-        ws.cell(row=row_num, column=15, value=item.get('bitrate', 'N/A'))
-        ws.cell(row=row_num, column=16, value=item.get('sample_rate', 'N/A'))
-        ws.cell(row=row_num, column=17, value=item.get('channels', 'N/A'))
-        ws.cell(row=row_num, column=18, value=item.get('composer', 'N/A'))
-        ws.cell(row=row_num, column=19, value=item.get('album_artist', 'N/A'))
-        ws.cell(row=row_num, column=20, value=item.get('grouping', 'N/A'))
-        ws.cell(row=row_num, column=21, value=item.get('lyrics', 'N/A'))
+        ws.cell(row=row_num, column=3, value=item['size_B'])
+        ws.cell(row=row_num, column=4, value=item['size_MB'])
+        ws.cell(row=row_num, column=5, value=item['modified_date'])
+        ws.cell(row=row_num, column=6, value=item.get('duration_seconds', 'N/A'))
+        ws.cell(row=row_num, column=7, value=item.get('duration', 'N/A'))
+        ws.cell(row=row_num, column=8, value=item.get('resolution', 'N/A'))
+        ws.cell(row=row_num, column=9, value=item.get('fps', 'N/A'))
+        ws.cell(row=row_num, column=10, value=item.get('codec', 'N/A'))
+        ws.cell(row=row_num, column=11, value=item.get('pixel_format', 'N/A'))
+        ws.cell(row=row_num, column=12, value=item.get('depth', 'N/A'))
+        ws.cell(row=row_num, column=13, value=item.get('rotation', 'N/A'))
+        ws.cell(row=row_num, column=14, value=item.get('bitrate', 'N/A'))
+        ws.cell(row=row_num, column=15, value=item.get('color_space', 'N/A'))
+        ws.cell(row=row_num, column=16, value=item.get('extra_infos', 'N/A'))
     
     # Auto-adjust column widths
     for column in ws.columns:
