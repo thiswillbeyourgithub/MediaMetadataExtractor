@@ -26,9 +26,12 @@ from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from moviepy.video.io.VideoFileClip import VideoFileClip
-import exifread
+from mutagen import File
+from mutagen.mp4 import MP4
+from mutagen.mp3 import MP3
+from mutagen.flac import FLAC
 
-MEDIA_EXTENSIONS = {'.mp3', '.mp4', '.avi', '.mkv', '.mov', '.wav', '.flac'}
+MEDIA_EXTENSIONS = {'.mp3', '.mp4', '.avi', '.mkv', '.mov', '.wav', '.flac', '.m4a', '.aac'}
 
 def get_media_metadata(file_path: Path) -> Dict[str, str]:
     """Extract metadata from a media file.
@@ -71,19 +74,34 @@ def get_media_metadata(file_path: Path) -> Dict[str, str]:
     except Exception as e:
         metadata['error'] = str(e)
     
-    # Try to get EXIF data for supported files
-    if file_path.suffix.lower() in {'.jpg', '.jpeg', '.png', '.tiff'}:
-        try:
-            with open(file_path, 'rb') as f:
-                tags = exifread.process_file(f)
-                if tags:
-                    metadata['exif'] = {
-                        'camera': str(tags.get('Image Model', 'N/A')),
-                        'date_taken': str(tags.get('EXIF DateTimeOriginal', 'N/A')),
-                        'iso': str(tags.get('EXIF ISOSpeedRatings', 'N/A'))
-                    }
-        except Exception:
-            pass
+    # Extract additional metadata using mutagen
+    try:
+        audio = File(str(file_path))
+        if audio:
+            metadata.update({
+                'title': audio.get('title', ['N/A'])[0],
+                'artist': audio.get('artist', ['N/A'])[0],
+                'album': audio.get('album', ['N/A'])[0],
+                'genre': audio.get('genre', ['N/A'])[0],
+                'track_number': audio.get('tracknumber', ['N/A'])[0],
+                'year': audio.get('date', ['N/A'])[0],
+                'bitrate': getattr(audio.info, 'bitrate', 'N/A'),
+                'sample_rate': getattr(audio.info, 'sample_rate', 'N/A'),
+                'channels': getattr(audio.info, 'channels', 'N/A'),
+            })
+            
+            # Handle MP4 specific tags
+            if file_path.suffix.lower() in {'.mp4', '.m4a'}:
+                mp4_tags = audio.tags
+                if mp4_tags:
+                    metadata.update({
+                        'composer': mp4_tags.get('\xa9wrt', ['N/A'])[0],
+                        'album_artist': mp4_tags.get('aART', ['N/A'])[0],
+                        'grouping': mp4_tags.get('\xa9grp', ['N/A'])[0],
+                        'lyrics': mp4_tags.get('\xa9lyr', ['N/A'])[0],
+                    })
+    except Exception as e:
+        metadata['audio_metadata_error'] = str(e)
     
     return metadata
 
@@ -102,7 +120,9 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
     headers = [
         'Filename', 'Path', 'Size', 'Modified Date', 
         'Duration', 'Resolution', 'FPS', 'Codec',
-        'Camera Model', 'Date Taken', 'ISO'
+        'Title', 'Artist', 'Album', 'Genre', 'Track Number',
+        'Year', 'Bitrate', 'Sample Rate', 'Channels',
+        'Composer', 'Album Artist', 'Grouping', 'Lyrics'
     ]
     for col_num, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col_num, value=header)
@@ -119,11 +139,20 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
         ws.cell(row=row_num, column=7, value=item.get('fps', 'N/A'))
         ws.cell(row=row_num, column=8, value=item.get('codec', 'N/A'))
         
-        # EXIF data
-        exif_data = item.get('exif', {})
-        ws.cell(row=row_num, column=9, value=exif_data.get('camera', 'N/A'))
-        ws.cell(row=row_num, column=10, value=exif_data.get('date_taken', 'N/A'))
-        ws.cell(row=row_num, column=11, value=exif_data.get('iso', 'N/A'))
+        # Audio metadata
+        ws.cell(row=row_num, column=9, value=item.get('title', 'N/A'))
+        ws.cell(row=row_num, column=10, value=item.get('artist', 'N/A'))
+        ws.cell(row=row_num, column=11, value=item.get('album', 'N/A'))
+        ws.cell(row=row_num, column=12, value=item.get('genre', 'N/A'))
+        ws.cell(row=row_num, column=13, value=item.get('track_number', 'N/A'))
+        ws.cell(row=row_num, column=14, value=item.get('year', 'N/A'))
+        ws.cell(row=row_num, column=15, value=item.get('bitrate', 'N/A'))
+        ws.cell(row=row_num, column=16, value=item.get('sample_rate', 'N/A'))
+        ws.cell(row=row_num, column=17, value=item.get('channels', 'N/A'))
+        ws.cell(row=row_num, column=18, value=item.get('composer', 'N/A'))
+        ws.cell(row=row_num, column=19, value=item.get('album_artist', 'N/A'))
+        ws.cell(row=row_num, column=20, value=item.get('grouping', 'N/A'))
+        ws.cell(row=row_num, column=21, value=item.get('lyrics', 'N/A'))
     
     # Auto-adjust column widths
     for column in ws.columns:
