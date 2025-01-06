@@ -5,11 +5,16 @@ from openpyxl.styles import Font
 from collections import defaultdict
 
 def group_by_folder(data):
-    """Group metadata entries by their folder path"""
+    """Group metadata entries by their folder path and sort by filename"""
     grouped = defaultdict(list)
     for item in data:
         folder = str(Path(item['path']).parent)
         grouped[folder].append(item)
+    
+    # Sort items in each folder by filename
+    for folder in grouped:
+        grouped[folder].sort(key=lambda x: x['filename'])
+    
     return grouped
 
 def create_sheet(wb, folder, data):
