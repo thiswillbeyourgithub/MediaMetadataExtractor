@@ -48,6 +48,7 @@ Note:
 import os
 import json
 import tkinter as tk
+from collections import defaultdict
 from tkinter import ttk, filedialog, messagebox
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -112,12 +113,69 @@ def get_media_metadata(file_path: Path, base_path: Path, collect_extra_infos: bo
     
     return metadata
 
+def create_sheet(ws, data: List[Dict[str, str]], collect_extra_infos: bool = False) -> None:
+    """Create a worksheet with metadata.
+    
+    Args:
+        ws: Worksheet object
+        data: List of metadata dictionaries
+        collect_extra_infos: Whether to include extra infos column
+    """
+    # Create header row
+    headers = [
+        'Filename', 'Path', 'Size (B)', 'Size (MB)', 'Modified Date', 
+        'Duration (seconds)', 'Duration', 'Resolution', 'FPS', 
+        'Codec', 'Pixel Format', 'Bit Depth', 'Rotation', 
+        'Bitrate', 'Color Space'
+    ]
+    if collect_extra_infos:
+        headers.append('Extra Infos')
+    
+    for col_num, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_num, value=header)
+        cell.font = Font(bold=True)
+    
+    # Add data rows
+    for row_num, item in enumerate(data, 2):
+        ws.cell(row=row_num, column=1, value=item['filename'])
+        ws.cell(row=row_num, column=2, value=item['path'])
+        ws.cell(row=row_num, column=3, value=item['size_B'])
+        ws.cell(row=row_num, column=4, value=item['size_MB'])
+        ws.cell(row=row_num, column=5, value=item['modified_date'])
+        ws.cell(row=row_num, column=6, value=item.get('duration_seconds', 'N/A'))
+        ws.cell(row=row_num, column=7, value=item.get('duration', 'N/A'))
+        ws.cell(row=row_num, column=8, value=item.get('resolution', 'N/A'))
+        ws.cell(row=row_num, column=9, value=item.get('fps', 'N/A'))
+        ws.cell(row=row_num, column=10, value=item.get('codec', 'N/A'))
+        ws.cell(row=row_num, column=11, value=item.get('pixel_format', 'N/A'))
+        ws.cell(row=row_num, column=12, value=item.get('depth', 'N/A'))
+        ws.cell(row=row_num, column=13, value=item.get('rotation', 'N/A'))
+        ws.cell(row=row_num, column=14, value=item.get('bitrate', 'N/A'))
+        ws.cell(row=row_num, column=15, value=item.get('color_space', 'N/A'))
+        if collect_extra_infos:
+            ws.cell(row=row_num, column=16, value=item.get('extra_infos', 'N/A'))
+    
+    # Auto-adjust column widths
+    for column in ws.columns:
+        max_length = 0
+        column = [cell for cell in column]
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = (max_length + 2)
+        ws.column_dimensions[column[0].column_letter].width = adjusted_width
+
 def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_infos: bool = False, group_by_folder: bool = False) -> None:
     """Save metadata to an Excel file.
     
     Args:
         data: List of metadata dictionaries
         output_path: Path to save the Excel file
+        collect_extra_infos: Whether to include extra infos column
+        group_by_folder: Whether to group files by folder in separate sheets
     """
     wb = Workbook()
     # Remove default sheet
@@ -144,73 +202,6 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_i
         # Create single sheet
         ws = wb.create_sheet(title="Media Metadata")
         create_sheet(ws, data, collect_extra_infos)
-    
-    # Create header row
-    headers = [
-        'Filename', 'Path', 'Size (B)', 'Size (MB)', 'Modified Date', 
-        'Duration (seconds)', 'Duration', 'Resolution', 'FPS', 
-        'Codec', 'Pixel Format', 'Bit Depth', 'Rotation', 
-        'Bitrate', 'Color Space'
-    ]
-    for col_num, header in enumerate(headers, 1):
-        cell = ws.cell(row=1, column=col_num, value=header)
-        cell.font = Font(bold=True)
-    
-    # Add data rows
-    for row_num, item in enumerate(data, 2):
-        ws.cell(row=row_num, column=1, value=item['filename'])
-        ws.cell(row=row_num, column=2, value=item['path'])
-        ws.cell(row=row_num, column=3, value=item['size_B'])
-        ws.cell(row=row_num, column=4, value=item['size_MB'])
-        ws.cell(row=row_num, column=5, value=item['modified_date'])
-        ws.cell(row=row_num, column=6, value=item.get('duration_seconds', 'N/A'))
-        ws.cell(row=row_num, column=7, value=item.get('duration', 'N/A'))
-        ws.cell(row=row_num, column=8, value=item.get('resolution', 'N/A'))
-        ws.cell(row=row_num, column=9, value=item.get('fps', 'N/A'))
-        ws.cell(row=row_num, column=10, value=item.get('codec', 'N/A'))
-        ws.cell(row=row_num, column=11, value=item.get('pixel_format', 'N/A'))
-        ws.cell(row=row_num, column=12, value=item.get('depth', 'N/A'))
-        ws.cell(row=row_num, column=13, value=item.get('rotation', 'N/A'))
-        ws.cell(row=row_num, column=14, value=item.get('bitrate', 'N/A'))
-        ws.cell(row=row_num, column=15, value=item.get('color_space', 'N/A'))
-        if collect_extra_infos:
-            headers.append('Extra Infos')
-            for col_num, header in enumerate(headers, 1):
-                cell = ws.cell(row=1, column=col_num, value=header)
-                cell.font = Font(bold=True)
-            
-            # Add data rows
-            for row_num, item in enumerate(data, 2):
-                ws.cell(row=row_num, column=1, value=item['filename'])
-                ws.cell(row=row_num, column=2, value=item['path'])
-                ws.cell(row=row_num, column=3, value=item['size_B'])
-                ws.cell(row=row_num, column=4, value=item['size_MB'])
-                ws.cell(row=row_num, column=5, value=item['modified_date'])
-                ws.cell(row=row_num, column=6, value=item.get('duration_seconds', 'N/A'))
-                ws.cell(row=row_num, column=7, value=item.get('duration', 'N/A'))
-                ws.cell(row=row_num, column=8, value=item.get('resolution', 'N/A'))
-                ws.cell(row=row_num, column=9, value=item.get('fps', 'N/A'))
-                ws.cell(row=row_num, column=10, value=item.get('codec', 'N/A'))
-                ws.cell(row=row_num, column=11, value=item.get('pixel_format', 'N/A'))
-                ws.cell(row=row_num, column=12, value=item.get('depth', 'N/A'))
-                ws.cell(row=row_num, column=13, value=item.get('rotation', 'N/A'))
-                ws.cell(row=row_num, column=14, value=item.get('bitrate', 'N/A'))
-                ws.cell(row=row_num, column=15, value=item.get('color_space', 'N/A'))
-                if collect_extra_infos:
-                    ws.cell(row=row_num, column=16, value=item.get('extra_infos', 'N/A'))
-    
-    # Auto-adjust column widths
-    for column in ws.columns:
-        max_length = 0
-        column = [cell for cell in column]
-        for cell in column:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
-            except:
-                pass
-        adjusted_width = (max_length + 2)
-        ws.column_dimensions[column[0].column_letter].width = adjusted_width
     
     wb.save(output_path)
 
