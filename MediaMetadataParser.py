@@ -105,7 +105,7 @@ def get_media_metadata(file_path: Path, base_path: Path) -> Dict[str, str]:
                         'depth': getattr(reader, 'depth', 'N/A'),
                         'rotation': getattr(reader, 'rotation', 'N/A'),
                         'bitrate': getattr(reader, 'bitrate', 'N/A'),
-                        'extra_infos': str(getattr(reader, 'infos', {})) if hasattr(reader, 'infos') else 'N/A',
+                        'extra_infos': str(getattr(reader, 'infos', {})) if hasattr(reader, 'infos') and self.collect_extra_infos.get() else 'N/A',
                     })
     except Exception as e:
         metadata['error'] = str(e)
@@ -128,7 +128,7 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
         'Filename', 'Path', 'Size (B)', 'Size (MB)', 'Modified Date', 
         'Duration (seconds)', 'Duration', 'Resolution', 'FPS', 
         'Codec', 'Pixel Format', 'Bit Depth', 'Rotation', 
-        'Bitrate', 'Color Space', 'Extra Infos'
+        'Bitrate', 'Color Space'
     ]
     for col_num, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col_num, value=header)
@@ -151,7 +151,31 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
         ws.cell(row=row_num, column=13, value=item.get('rotation', 'N/A'))
         ws.cell(row=row_num, column=14, value=item.get('bitrate', 'N/A'))
         ws.cell(row=row_num, column=15, value=item.get('color_space', 'N/A'))
-        ws.cell(row=row_num, column=16, value=item.get('extra_infos', 'N/A'))
+        if self.collect_extra_infos.get():
+            headers.append('Extra Infos')
+            for col_num, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col_num, value=header)
+                cell.font = Font(bold=True)
+            
+            # Add data rows
+            for row_num, item in enumerate(data, 2):
+                ws.cell(row=row_num, column=1, value=item['filename'])
+                ws.cell(row=row_num, column=2, value=item['path'])
+                ws.cell(row=row_num, column=3, value=item['size_B'])
+                ws.cell(row=row_num, column=4, value=item['size_MB'])
+                ws.cell(row=row_num, column=5, value=item['modified_date'])
+                ws.cell(row=row_num, column=6, value=item.get('duration_seconds', 'N/A'))
+                ws.cell(row=row_num, column=7, value=item.get('duration', 'N/A'))
+                ws.cell(row=row_num, column=8, value=item.get('resolution', 'N/A'))
+                ws.cell(row=row_num, column=9, value=item.get('fps', 'N/A'))
+                ws.cell(row=row_num, column=10, value=item.get('codec', 'N/A'))
+                ws.cell(row=row_num, column=11, value=item.get('pixel_format', 'N/A'))
+                ws.cell(row=row_num, column=12, value=item.get('depth', 'N/A'))
+                ws.cell(row=row_num, column=13, value=item.get('rotation', 'N/A'))
+                ws.cell(row=row_num, column=14, value=item.get('bitrate', 'N/A'))
+                ws.cell(row=row_num, column=15, value=item.get('color_space', 'N/A'))
+                if self.collect_extra_infos.get():
+                    ws.cell(row=row_num, column=16, value=item.get('extra_infos', 'N/A'))
     
     # Auto-adjust column widths
     for column in ws.columns:
@@ -204,6 +228,9 @@ class MediaMetadataParser:
         self.root.title("Media Metadata Extractor")
         self.root.geometry("500x400")
         self.root.minsize(400, 300)
+        
+        # Settings
+        self.collect_extra_infos = tk.BooleanVar(value=False)
         
         # Try to load last used path
         last_path = self._load_last_path()
@@ -264,6 +291,16 @@ class MediaMetadataParser:
             command=self.select_output_file
         )
         self.output_browse_button.pack(side="top", pady=(0,5))
+        
+        # Extra infos checkbox
+        self.extra_infos_check = ttk.Checkbutton(
+            self.output_frame,
+            text="Include extra infos (slower)",
+            variable=self.collect_extra_infos,
+            onvalue=True,
+            offvalue=False
+        )
+        self.extra_infos_check.pack(side="top", anchor="w")
         
         # JSON output checkbox
         self.save_json = tk.BooleanVar(value=False)
