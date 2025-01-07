@@ -60,7 +60,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 MEDIA_EXTENSIONS = {'.mp3', '.mp4', '.avi', '.mkv', '.mov', '.wav', '.flac', '.m4a', '.aac'}
 
-def get_media_metadata(file_path: Path, base_path: Path) -> Dict[str, str]:
+def get_media_metadata(file_path: Path, base_path: Path, collect_extra_infos: bool = False) -> Dict[str, str]:
     """Extract metadata from a media file.
     
     Args:
@@ -105,14 +105,14 @@ def get_media_metadata(file_path: Path, base_path: Path) -> Dict[str, str]:
                         'depth': getattr(reader, 'depth', 'N/A'),
                         'rotation': getattr(reader, 'rotation', 'N/A'),
                         'bitrate': getattr(reader, 'bitrate', 'N/A'),
-                        'extra_infos': str(getattr(reader, 'infos', {})) if hasattr(reader, 'infos') and self.collect_extra_infos.get() else 'N/A',
+                        'extra_infos': str(getattr(reader, 'infos', {})) if hasattr(reader, 'infos') and collect_extra_infos else 'N/A',
                     })
     except Exception as e:
         metadata['error'] = str(e)
     
     return metadata
 
-def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
+def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_infos: bool = False) -> None:
     """Save metadata to an Excel file.
     
     Args:
@@ -151,7 +151,7 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
         ws.cell(row=row_num, column=13, value=item.get('rotation', 'N/A'))
         ws.cell(row=row_num, column=14, value=item.get('bitrate', 'N/A'))
         ws.cell(row=row_num, column=15, value=item.get('color_space', 'N/A'))
-        if self.collect_extra_infos.get():
+        if collect_extra_infos:
             headers.append('Extra Infos')
             for col_num, header in enumerate(headers, 1):
                 cell = ws.cell(row=1, column=col_num, value=header)
@@ -174,7 +174,7 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path) -> None:
                 ws.cell(row=row_num, column=13, value=item.get('rotation', 'N/A'))
                 ws.cell(row=row_num, column=14, value=item.get('bitrate', 'N/A'))
                 ws.cell(row=row_num, column=15, value=item.get('color_space', 'N/A'))
-                if self.collect_extra_infos.get():
+                if collect_extra_infos:
                     ws.cell(row=row_num, column=16, value=item.get('extra_infos', 'N/A'))
     
     # Auto-adjust column widths
@@ -498,14 +498,14 @@ class MediaMetadataParser:
                     
                 percentage = (i + 1) / total_files * 100
                 self.log_message(f"Processing: {file.name} ({percentage:.1f}%)")
-                metadata = get_media_metadata(file, path)
+                metadata = get_media_metadata(file, path, self.collect_extra_infos.get())
                 metadata_list.append(metadata)
                 
                 if (i+1) % 10 == 0:  # Update progress every 10 files
                     self.log_message(f"Processed {i+1}/{total_files} files ({percentage:.1f}%)")
             
             output_path = Path(self.output_path.get())
-            save_to_excel(metadata_list, output_path)
+            save_to_excel(metadata_list, output_path, self.collect_extra_infos.get())
             self.log_message(f"\nResults saved to {output_path}")
             
             # Save JSON if checkbox is checked
