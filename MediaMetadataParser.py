@@ -112,7 +112,7 @@ def get_media_metadata(file_path: Path, base_path: Path, collect_extra_infos: bo
     
     return metadata
 
-def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_infos: bool = False) -> None:
+def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_infos: bool = False, group_by_folder: bool = False) -> None:
     """Save metadata to an Excel file.
     
     Args:
@@ -120,8 +120,30 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_i
         output_path: Path to save the Excel file
     """
     wb = Workbook()
-    ws = wb.active
-    ws.title = "Media Metadata"
+    # Remove default sheet
+    wb.remove(wb.active)
+    
+    if group_by_folder:
+        # Group data by folder
+        grouped_data = defaultdict(list)
+        for item in data:
+            folder = str(Path(item['path']).parent)
+            grouped_data[folder].append(item)
+        
+        # Sort items in each folder by filename
+        for folder in grouped_data:
+            grouped_data[folder].sort(key=lambda x: x['filename'])
+        
+        # Create sheets for each folder
+        for folder, items in grouped_data.items():
+            # Replace / with __ and truncate to 31 chars for Excel sheet name
+            sheet_title = folder.replace('/', '__')[:31]
+            ws = wb.create_sheet(title=sheet_title)
+            create_sheet(ws, items, collect_extra_infos)
+    else:
+        # Create single sheet
+        ws = wb.create_sheet(title="Media Metadata")
+        create_sheet(ws, data, collect_extra_infos)
     
     # Create header row
     headers = [
@@ -231,6 +253,7 @@ class MediaMetadataParser:
         
         # Settings
         self.collect_extra_infos = tk.BooleanVar(value=False)
+        self.group_by_folder = tk.BooleanVar(value=False)
         
         # Try to load last used path
         last_path = self._load_last_path()
@@ -301,6 +324,16 @@ class MediaMetadataParser:
             offvalue=False
         )
         self.extra_infos_check.pack(side="top", anchor="w")
+        
+        # Group by folder checkbox
+        self.group_by_folder_check = ttk.Checkbutton(
+            self.output_frame,
+            text="Group files by folder in separate sheets",
+            variable=self.group_by_folder,
+            onvalue=True,
+            offvalue=False
+        )
+        self.group_by_folder_check.pack(side="top", anchor="w")
         
         # JSON output checkbox
         self.save_json = tk.BooleanVar(value=False)
@@ -505,7 +538,7 @@ class MediaMetadataParser:
                     self.log_message(f"Processed {i+1}/{total_files} files ({percentage:.1f}%)")
             
             output_path = Path(self.output_path.get())
-            save_to_excel(metadata_list, output_path, self.collect_extra_infos.get())
+            save_to_excel(metadata_list, output_path, self.collect_extra_infos.get(), self.group_by_folder.get())
             self.log_message(f"\nResults saved to {output_path}")
             
             # Save JSON if checkbox is checked
