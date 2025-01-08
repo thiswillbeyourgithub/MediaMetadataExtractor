@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.8"
+# dependencies = [
+#   "moviepy>=1.0.3",
+#   "openpyxl>=3.0.10",
+# ]
+# ///
+
 """MediaMetadataParser - Media Metadata Extraction Tool
 
 Repository: https://github.com/thiswillbeyourgithub/MediaMetadataParser
