@@ -297,14 +297,14 @@ class MediaMetadataParser:
         # Excel output
         self.output_path = tk.StringVar(value=str(Path.home() / "media_metadata.xlsx"))
         self.output_entry = ttk.Entry(self.output_frame, textvariable=self.output_path)
-        self.output_entry.pack(side="top", fill="x", expand=True, padx=(0,5))
+        self.output_entry.pack(side="left", fill="x", expand=True, padx=5, pady=5)
         
         self.output_browse_button = ttk.Button(
             self.output_frame, 
             text="Browse Excel", 
             command=self.select_output_file
         )
-        self.output_browse_button.pack(side="top", pady=(0,5))
+        self.output_browse_button.pack(side="right", padx=5, pady=5)
         
         # Extra infos checkbox
         self.extra_infos_check = ttk.Checkbutton(
