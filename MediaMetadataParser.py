@@ -296,9 +296,10 @@ class MediaMetadataParser:
         self.collect_extra_infos = tk.BooleanVar(value=False)
         self.group_by_folder = tk.BooleanVar(value=False)
         
-        # Try to load last used path
-        last_path = self._load_last_path()
-        self.folder_path = tk.StringVar(value=last_path if last_path else "")
+        # Try to load last used paths
+        last_folder_path = self._load_last_path("folder")
+        last_excel_path = self._load_last_path("excel")
+        self.folder_path = tk.StringVar(value=last_folder_path if last_folder_path else "")
         
         # Main container using grid
         self.main_container = ttk.Frame(root)
@@ -345,7 +346,9 @@ class MediaMetadataParser:
         self.output_frame.grid(row=2, column=0, sticky="ew", padx=5, pady=2)
         
         # Excel output
-        self.output_path = tk.StringVar(value=str(Path.home() / "media_metadata.xlsx"))
+        self.output_path = tk.StringVar(
+            value=last_excel_path if last_excel_path else str(Path.home() / "media_metadata.xlsx")
+        )
         self.output_entry = ttk.Entry(self.output_frame, textvariable=self.output_path)
         self.output_entry.pack(side="left", fill="x", expand=True, padx=5, pady=5)
         
@@ -451,37 +454,56 @@ class MediaMetadataParser:
         self.github_link.pack(side="right")
         self.github_link.bind("<Button-1>", lambda e: self.open_github())
 
-    def _get_last_path_file(self) -> Path:
-        """Get the path to the last path file in system temp directory."""
+    def _get_last_path_file(self, suffix: str = "folder") -> Path:
+        """Get the path to the last path file in system temp directory.
+        
+        Args:
+            suffix: Either 'folder' or 'excel' to specify which path to get
+        """
         import tempfile
         temp_dir = Path(tempfile.gettempdir())
-        return temp_dir / "MediaMetadataParser_latest_path.txt"
+        return temp_dir / f"MediaMetadataParser_latest_{suffix}_path.txt"
 
-    def _is_valid_path(self, path: str) -> bool:
+    def _is_valid_path(self, path: str, is_file: bool = False) -> bool:
+        """Check if a path is valid and accessible.
+        
+        Args:
+            path: Path to check
+            is_file: If True, checks if path is a valid file
+        """
         """Check if a path is valid and accessible."""
         try:
             return os.path.exists(path) and os.path.isdir(path)
         except Exception:
             return False
 
-    def _save_last_path(self, path: str) -> None:
-        """Save the last selected path to a temporary file only if valid."""
+    def _save_last_path(self, path: str, suffix: str = "folder") -> None:
+        """Save the last selected path to a temporary file only if valid.
+        
+        Args:
+            path: Path to save
+            suffix: Either 'folder' or 'excel' to specify which path to save
+        """
         try:
-            if self._is_valid_path(path):
-                last_path_file = self._get_last_path_file()
+            if self._is_valid_path(path, is_file=(suffix == "excel")):
+                last_path_file = self._get_last_path_file(suffix)
                 with open(last_path_file, "w") as f:
                     f.write(path)
         except Exception:
             pass
 
-    def _load_last_path(self) -> Optional[str]:
-        """Load the last selected path from temporary file if it exists and is valid."""
+    def _load_last_path(self, suffix: str = "folder") -> Optional[str]:
+        """Load the last selected path from temporary file if it exists and is valid.
+        
+        Args:
+            suffix: Either 'folder' or 'excel' to specify which path to load
+        """
         try:
-            last_path_file = self._get_last_path_file()
+            last_path_file = self._get_last_path_file(suffix)
             if last_path_file.exists():
                 with open(last_path_file, "r") as f:
                     path = f.read().strip()
-                    if path and self._is_valid_path(path):
+                    if path and self._is_valid_path(path, is_file=(suffix == "excel")):
                         return path
                     os.remove(last_path_file)
         except Exception:
@@ -505,13 +527,16 @@ class MediaMetadataParser:
                 )
 
     def select_output_file(self):
+        initialdir = Path(self.output_path.get()).parent if self.output_path.get() else None
         output_file = filedialog.asksaveasfilename(
             defaultextension=".xlsx",
             filetypes=[("Excel files", "*.xlsx")],
-            initialfile="media_metadata.xlsx"
+            initialfile="media_metadata.xlsx",
+            initialdir=initialdir
         )
         if output_file:
             self.output_path.set(output_file)
+            self._save_last_path(output_file, "excel")
 
     def log_message(self, message):
         """Immediate logging for important messages"""
