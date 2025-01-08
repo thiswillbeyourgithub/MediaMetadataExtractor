@@ -1,4 +1,4 @@
-# MediaMetadataParser
+# MediaMetadataExtractor
 
 > A French version of this README is available: [README_fr.md](README_fr.md)
 > Une version française de ce fichier README est disponible : [README_fr.md](README_fr.md)  
@@ -58,8 +58,8 @@ MediaMetadataParser est un outil puissant pour extraire et organiser les métado
 
 1. Clonez le dépôt :
 ```bash
-git clone https://github.com/thiswillbeyourgithub/MediaMetadataParser.git
-cd MediaMetadataParser
+git clone https://github.com/thiswillbeyourgithub/MediaMetadataExtractor.git
+cd MediaMetadataExtractor
 ```
 
 2. Installez les dépendances :
@@ -71,7 +71,7 @@ pip install -r requirements.txt
 
 Exécutez le script pour lancer l'application graphique :
 ```bash
-python MediaMetadataParser.py
+python MediaMetadataExtractor.py
 ```
 
 1. Sélectionnez un dossier contenant des fichiers multimédias
