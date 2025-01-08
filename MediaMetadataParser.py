@@ -298,7 +298,7 @@ def process_directory(directory: Path, output_file: Path) -> None:
 class MediaMetadataParser:
     def __init__(self, root):
         self.root = root
-        self.root.title("Media Metadata Extractor")
+        self.root.title("MediaMetadataParser")
         self.root.geometry("500x400")
         self.root.minsize(400, 300)
         
