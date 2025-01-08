@@ -1,5 +1,8 @@
 # MediaMetadataParser
 
+> A French version of this README is available: [README_fr.md](README_fr.md)
+> Une version française de ce fichier README est disponible : [README_fr.md](README_fr.md)  
+
 ![Version Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Licence](https://img.shields.io/badge/licence-GPLv3-green.svg)
 
