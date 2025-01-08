@@ -168,6 +168,25 @@ def create_sheet(ws, data: List[Dict[str, str]], collect_extra_infos: bool = Fal
         adjusted_width = (max_length + 2)
         ws.column_dimensions[column[0].column_letter].width = adjusted_width
 
+def _sanitize_sheet_title(title: str) -> str:
+    """Sanitize a sheet title to be Excel-compatible.
+    
+    Args:
+        title: Original sheet title
+        
+    Returns:
+        Sanitized title that should work with Excel
+    """
+    import re
+    # First try: replace all non-alphanumeric with _
+    sanitized = re.sub(r'[^a-zA-Z0-9]', '_', title)
+    
+    # If still too long, truncate and add leading _
+    if len(sanitized) > 28:
+        sanitized = '_' + sanitized[:27]
+    
+    return sanitized
+
 def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_infos: bool = False, group_by_folder: bool = False) -> None:
     """Save metadata to an Excel file.
     
@@ -181,29 +200,60 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_i
     # Remove default sheet
     wb.remove(wb.active)
     
-    if group_by_folder:
-        # Group data by folder
-        grouped_data = defaultdict(list)
-        for item in data:
-            folder = str(Path(item['path']).parent)
-            grouped_data[folder].append(item)
+    try:
+        if group_by_folder:
+            # Group data by folder
+            grouped_data = defaultdict(list)
+            for item in data:
+                folder = str(Path(item['path']).parent)
+                grouped_data[folder].append(item)
+            
+            # Sort items in each folder by filename
+            for folder in grouped_data:
+                grouped_data[folder].sort(key=lambda x: x['filename'])
+            
+            # Create sheets for each folder
+            for folder, items in grouped_data.items():
+                original_title = folder.replace('/', '__')[:31]
+                sanitized_title = _sanitize_sheet_title(original_title)
+                
+                try:
+                    ws = wb.create_sheet(title=sanitized_title)
+                    create_sheet(ws, items, collect_extra_infos)
+                except Exception as e:
+                    # If sanitized title still fails, use a generic name
+                    fallback_title = f"Sheet_{len(wb.worksheets)}"
+                    messagebox.showwarning(
+                        "Sheet Name Adjusted",
+                        f"Could not use sheet name '{original_title}'. "
+                        f"Using '{fallback_title}' instead due to Excel naming restrictions."
+                    )
+                    ws = wb.create_sheet(title=fallback_title)
+                    create_sheet(ws, items, collect_extra_infos)
+        else:
+            # Create single sheet
+            try:
+                ws = wb.create_sheet(title="Media Metadata")
+                create_sheet(ws, data, collect_extra_infos)
+            except Exception as e:
+                # If default name fails, use a generic name
+                fallback_title = "Metadata"
+                messagebox.showwarning(
+                    "Sheet Name Adjusted",
+                    f"Could not use default sheet name. "
+                    f"Using '{fallback_title}' instead due to Excel naming restrictions."
+                )
+                ws = wb.create_sheet(title=fallback_title)
+                create_sheet(ws, data, collect_extra_infos)
         
-        # Sort items in each folder by filename
-        for folder in grouped_data:
-            grouped_data[folder].sort(key=lambda x: x['filename'])
-        
-        # Create sheets for each folder
-        for folder, items in grouped_data.items():
-            # Replace / with __ and truncate to 31 chars for Excel sheet name
-            sheet_title = folder.replace('/', '__')[:31]
-            ws = wb.create_sheet(title=sheet_title)
-            create_sheet(ws, items, collect_extra_infos)
-    else:
-        # Create single sheet
-        ws = wb.create_sheet(title="Media Metadata")
-        create_sheet(ws, data, collect_extra_infos)
-    
-    wb.save(output_path)
+        wb.save(output_path)
+    except Exception as e:
+        messagebox.showerror(
+            "Excel Save Error",
+            f"Failed to save Excel file: {str(e)}\n"
+            "Please check if the file is open in another program or if you have write permissions."
+        )
+        raise
 
 def process_directory(directory: Path, output_file: Path) -> None:
     """Process all media files in a directory and save metadata to Excel.
