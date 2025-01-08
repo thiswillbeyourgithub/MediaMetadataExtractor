@@ -69,6 +69,7 @@ import threading
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from moviepy.video.io.VideoFileClip import VideoFileClip
+from natsort import natsorted
 
 MEDIA_EXTENSIONS = {'.mp3', '.mp4', '.avi', '.mkv', '.mov', '.wav', '.flac', '.m4a', '.aac'}
 
@@ -224,8 +225,6 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_i
             for item in data:
                 folder = str(Path(item['path']).parent)
                 grouped_data[folder].append(item)
-            
-            from natsort import natsorted
             
             # Sort items in each folder by filename using natural sort
             for folder in grouped_data:
