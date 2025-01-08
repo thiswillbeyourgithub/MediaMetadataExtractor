@@ -8,14 +8,14 @@
 
 ## Motivation
 
-Ce projet a été créé pour aider ma conjointe qui travaille dans la production vidéo et avait besoin d'un moyen plus rapide d'accéder aux métadonnées de grandes collections de rushes, de séquences vidéo et d'autres fichiers multimédias. Les outils existants étaient soit trop lents, ne fournissaient pas les bonnes informations, ou nécessitaient un traitement manuel de chaque fichier. MediaMetadataParser a été conçu pour :
+Ce projet a été créé pour aider ma conjointe qui travaille dans la production vidéo et avait besoin d'un moyen plus rapide d'accéder aux métadonnées de grandes collections de rushes, de séquences vidéo et d'autres fichiers multimédias. Les outils existants étaient soit trop lents, ne fournissaient pas les bonnes informations, ou nécessitaient un traitement manuel de chaque fichier. MediaMetadataExtractor a été conçu pour :
 
 - Analyser rapidement des répertoires entiers de fichiers multimédias
 - Extraire toutes les métadonnées techniques pertinentes en une seule fois
 - Fournir une sortie organisée et consultable
 - Répondre aux besoins spécifiques des workflows de production vidéo
 
-MediaMetadataParser est un outil puissant pour extraire et organiser les métadonnées des fichiers multimédias. Il prend en charge divers formats multimédias et fournit des informations détaillées aux formats Excel et JSON.
+MediaMetadataExtractor est un outil puissant pour extraire et organiser les métadonnées des fichiers multimédias. Il prend en charge divers formats multimédias et fournit des informations détaillées aux formats Excel et JSON.
 
 ## Fonctionnalités
 
