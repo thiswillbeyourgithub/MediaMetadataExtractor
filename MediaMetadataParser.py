@@ -16,7 +16,9 @@ This application extracts metadata from media files including:
 The results are saved to an Excel file with each file's metadata in a row.
 
 Key Features:
-- Supports common media formats: .mp3, .mp4, .avi, .mkv, .mov, .wav, .flac, .m4a, .aac
+- Supports common media formats:
+  - Video: .mp4, .avi, .mkv, .mov
+  - Audio: .mp3, .wav, .flac, .m4a, .aac
 - Recursively scans directories
 - Excludes hidden files (those starting with '.')
 - Provides:

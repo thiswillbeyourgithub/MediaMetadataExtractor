@@ -32,6 +32,7 @@ MediaMetadataParser is a powerful tool for extracting and organizing metadata fr
 - Supports multiple media formats:
   - Video: .mp4, .avi, .mkv, .mov
   - Audio: .mp3, .wav, .flac, .m4a, .aac
+  - Supported formats: .mp3, .mp4, .avi, .mkv, .mov, .wav, .flac, .m4a, .aac
 - Recursively scans directories
 - Excludes hidden files (those starting with '.')
 - Provides:
