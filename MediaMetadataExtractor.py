@@ -218,9 +218,15 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_i
                 folder = str(Path(item['path']).parent)
                 grouped_data[folder].append(item)
             
-            # Sort items in each folder by filename
+            # Natural sort key function
+            def natural_sort_key(s):
+                import re
+                return [int(text) if text.isdigit() else text.lower() 
+                       for text in re.split('([0-9]+)', s['filename'])]
+            
+            # Sort items in each folder by filename using natural sort
             for folder in grouped_data:
-                grouped_data[folder].sort(key=lambda x: x['filename'])
+                grouped_data[folder].sort(key=natural_sort_key)
             
             # Create sheets for each folder
             for folder, items in grouped_data.items():
