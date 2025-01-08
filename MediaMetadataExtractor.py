@@ -190,7 +190,7 @@ def _sanitize_sheet_title(title: str) -> str:
     """
     import re
     # First try: replace all non-alphanumeric with _
-    sanitized = re.sub(r'[^a-zA-Z0-9]', '_', title)
+    sanitized = re.sub(r'[^a-zA-Z0-9_]', '_', title)
     
     # If still too long, truncate and add leading _
     if len(sanitized) > 28:
