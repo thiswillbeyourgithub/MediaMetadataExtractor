@@ -64,7 +64,7 @@ cd MediaMetadataExtractor
 
 2. Installez les dépendances :
 ```bash
-pip install -r requirements.txt
+pip install moviepy openpyxl natsort
 ```
 
 ## Utilisation
