@@ -4,6 +4,7 @@
 # dependencies = [
 #   "moviepy>=1.0.3",
 #   "openpyxl>=3.0.10",
+#   "natsort>=8.4.0",
 # ]
 # ///
 
@@ -218,15 +219,11 @@ def save_to_excel(data: List[Dict[str, str]], output_path: Path, collect_extra_i
                 folder = str(Path(item['path']).parent)
                 grouped_data[folder].append(item)
             
-            # Natural sort key function
-            def natural_sort_key(s):
-                import re
-                return [int(text) if text.isdigit() else text.lower() 
-                       for text in re.split('([0-9]+)', s['filename'])]
+            from natsort import natsorted
             
             # Sort items in each folder by filename using natural sort
             for folder in grouped_data:
-                grouped_data[folder].sort(key=natural_sort_key)
+                grouped_data[folder] = natsorted(grouped_data[folder], key=lambda x: x['filename'])
             
             # Create sheets for each folder
             for folder, items in grouped_data.items():
