@@ -6,6 +6,8 @@
 ![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/license-GPLv3-green.svg)
 
+![Application GUI](gui.png)
+
 ## Motivation
 
 This project was created to help my significant other who works in video production and needed a quicker way to access metadata from large collections of dailies, rush footage, and other video files. The existing tools were either too slow, didn't provide the right information, or required manual processing of each file. MediaMetadataExtractor was designed to:

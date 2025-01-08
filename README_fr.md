@@ -6,6 +6,8 @@
 ![Version Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![Licence](https://img.shields.io/badge/licence-GPLv3-green.svg)
 
+![Interface graphique de l'application](gui.png)
+
 ## Motivation
 
 Ce projet a été créé pour aider ma conjointe qui travaille dans la production vidéo et avait besoin d'un moyen plus rapide d'accéder aux métadonnées de grandes collections de rushes, de séquences vidéo et d'autres fichiers multimédias. Les outils existants étaient soit trop lents, ne fournissaient pas les bonnes informations, ou nécessitaient un traitement manuel de chaque fichier. MediaMetadataExtractor a été conçu pour :
