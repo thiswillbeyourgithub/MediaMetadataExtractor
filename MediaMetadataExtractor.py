@@ -7,9 +7,9 @@
 # ]
 # ///
 
-"""MediaMetadataParser - Media Metadata Extraction Tool
+"""MediaMetadataExtractor - Media Metadata Extraction Tool
 
-Repository: https://github.com/thiswillbeyourgithub/MediaMetadataParser
+Repository: https://github.com/thiswillbeyourgithub/MediaMetadataExtractor
 Author: thiswillbeyourgithub
 License: GPLv3
 
@@ -295,10 +295,10 @@ def process_directory(directory: Path, output_file: Path) -> None:
     save_to_excel(metadata_list, output_file)
     print("Processing complete!")
 
-class MediaMetadataParser:
+class MediaMetadataExtractor:
     def __init__(self, root):
         self.root = root
-        self.root.title("MediaMetadataParser")
+        self.root.title("MediaMetadataExtractor")
         self.root.geometry("500x400")
         self.root.minsize(400, 300)
         
@@ -464,6 +464,11 @@ class MediaMetadataParser:
         self.github_link.pack(side="right")
         self.github_link.bind("<Button-1>", lambda e: self.open_github())
 
+    def open_github(self):
+        """Open the GitHub repository in the default web browser."""
+        import webbrowser
+        webbrowser.open("https://github.com/thiswillbeyourgithub/MediaMetadataExtractor")
+
     def _get_last_path_file(self, suffix: str = "folder") -> Path:
         """Get the path to the last path file in system temp directory.
         
@@ -472,7 +477,7 @@ class MediaMetadataParser:
         """
         import tempfile
         temp_dir = Path(tempfile.gettempdir())
-        return temp_dir / f"MediaMetadataParser_latest_{suffix}_path.txt"
+        return temp_dir / f"MediaMetadataExtractor_latest_{suffix}_path.txt"
 
     def _is_valid_path(self, path: str, is_file: bool = False) -> bool:
         """Check if a path is valid and accessible.
@@ -664,7 +669,7 @@ class MediaMetadataParser:
 if __name__ == '__main__':
     try:
         root = tk.Tk()
-        app = MediaMetadataParser(root)
+        app = MediaMetadataExtractor(root)
         root.mainloop()
     except KeyboardInterrupt:
         print("\nKeyboard interrupt received. Exiting gracefully...")
